@@ -15,7 +15,7 @@ fi
 
 cd /build
 
-bash configure -q $CONFIG_PARAMS --prefix=/install/usr/local/
+bash configure -q $CONFIG_PARAMS --prefix=/install/usr/lib/
 if [[ "$1" = "--clean" ]]; then
     make clean
 fi
@@ -23,5 +23,6 @@ make images
 make install
 
 cd /install
+rm -rf usr/lib/bin
 zip jdk_$VERSION.zip usr/ -r
 mv jdk_$VERSION.zip /build/

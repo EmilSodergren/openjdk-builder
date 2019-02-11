@@ -22,5 +22,5 @@ p = Popen(["docker", "build", "--build-arg", "JDK_VERSION="+args.bootstrap_jdk_p
 p.wait()
 clean = ""
 if (args.clean):
-    clean = "\ --clean"
-call(["docker","run","-t","-v",join(os.getcwd(),v)+":/build","-e", "VERSION="+v, docker_build_name, "/run.sh", "--clean"])
+    clean = "--clean"
+call(["docker","run","-t","-v",join(os.getcwd(),v)+":/build","-e", "VERSION="+v, docker_build_name, "/run.sh", clean])

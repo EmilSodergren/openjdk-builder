@@ -33,4 +33,48 @@ cp -r /DEBIAN $PACKAGE_NAME
 
 dpkg-deb --build $PACKAGE_NAME
 
-mv $PACKAGE_NAME /packages/
+mv $PACKAGE_NAME.deb /packages/
+
+# Test the package
+echo ""
+echo "-----"
+echo "Install and verify $PACKAGE_NAME"
+echo "-----"
+echo ""
+
+cd /packages
+
+apt install -y ./$PACKAGE_NAME.deb &> /tmp/install.log
+if [[ "$?" != "0" ]]; then
+    echo "Error:"
+    cat /tmp/install.log
+    exit 1
+else
+    echo "Package $PACKAGE_NAME.deb installs sucessfully"
+    echo "The current java version is:"
+    java -version
+fi
+
+if grep update-alternatives /tmp/install.log &> /dev/null
+then
+    echo "Package $PACKAGE_NAME.deb seems to be correctly configured."
+else
+    echo "Package $PACKAGE_NAME.deb is broken"
+    exit 1
+fi
+
+echo ""
+echo "-----"
+echo ""
+
+
+apt purge -y $PACKAGE_NAME &> /tmp/uninstall.log
+if [[ "$?" != "0" ]]; then
+    echo "Error:"
+    cat /tmp/uninstall.log
+    exit 1
+else
+    echo "Package $PACKAGE_NAME.deb uninstalls sucessfully"
+    echo "The current java version is:"
+    java -version
+fi

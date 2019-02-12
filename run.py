@@ -23,4 +23,7 @@ p.wait()
 clean = ""
 if (args.clean):
     clean = "--clean"
-call(["docker","run","-t","-v",join(os.getcwd(),v)+":/build","-e", "VERSION="+v, docker_build_name, "/run.sh", clean])
+builddir = join(os.getcwd(), v)+":/build"
+confdir = join(os.getcwd(), "debconf", v, "DEBIAN")+":/DEBIAN"
+packagedir = join(os.getcwd(), "packages")+":/packages"
+call(["docker","run","-t","-v", builddir,"-v", confdir, "-v", packagedir, "-e", "VERSION="+v, docker_build_name, "/run.sh", clean])

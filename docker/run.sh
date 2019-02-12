@@ -1,7 +1,20 @@
 #!/bin/bash -e
 
+for i in "$@"
+do
+    case $i in
+        --clean)
+        CLEAN=1
+        shift
+        ;;
+        --no-test)
+        NO_TEST=1
+        shift
+        ;;
+    esac
+done
 if [[ "$VERSION" = "jdk8u" ]]; then
-    CONFIG_PARAMS="--with-milestone=emil --disable-zip-debug-info"
+    CONFIG_PARAMS="--with-milestone=emil --disable-debug-symbols --disable-zip-debug-info"
     PACKAGE_NAME="openjdk-1.8.0-emil"
 elif [[ "$VERSION" = "jdk11" ]]; then
     TIME=`date '+%F-%H-%M-%S'`
@@ -20,7 +33,7 @@ mkdir $PACKAGE_NAME
 
 pushd /build > /dev/null
 bash configure -q $CONFIG_PARAMS --with-native-debug-symbols=none --prefix=/$PACKAGE_NAME/usr/lib/
-if [[ "$1" = "--clean" ]]; then
+if [[ $CLEAN = 1 ]]; then
     make clean
 fi
 make images
@@ -34,6 +47,10 @@ cp -r /DEBIAN $PACKAGE_NAME
 dpkg-deb --build $PACKAGE_NAME
 
 mv $PACKAGE_NAME.deb /packages/
+
+if [[ $NO_TEST = 1 ]]; then
+    exit 0
+fi
 
 # Test the package
 echo ""

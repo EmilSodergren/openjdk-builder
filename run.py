@@ -8,7 +8,8 @@ parser = ArgumentParser(description='Setup the machine')
 
 parser.add_argument('source_version', help='Version of JDK to build, needs to correspond to the folder name')
 parser.add_argument('bootstrap_jdk_package', help='Which version to use as bootstrap JDK, by spec this should most of the time be JDK version N-1')
-parser.add_argument('--clean', '-c', action='store_true')
+parser.add_argument('--clean', '-c', action='store_const', const='--clean')
+parser.add_argument('--no-test', action='store_const', const='--no-test')
 args = parser.parse_args()
 
 v = args.source_version
@@ -20,13 +21,10 @@ if not exists(v):
 docker_build_name = "jdk_builder_"+v
 p = Popen(["docker", "build", "--build-arg", "JDK_VERSION="+args.bootstrap_jdk_package, "-t", docker_build_name, "."], cwd="./docker")
 p.wait()
-clean = ""
-if (args.clean):
-    clean = "--clean"
 build_mount = join(os.getcwd(), v)+":/build"
 config_mount = join(os.getcwd(), "debconf", v, "DEBIAN")+":/DEBIAN"
 packagedir = join(os.getcwd(), "packages")
 if not os.path.exists(packagedir):
     os.makedirs(packagedir)
 package_mount = join(os.getcwd(), "packages")+":/packages"
-call(["docker","run","-t","-v", build_mount,"-v", config_mount, "-v", package_mount, "-e", "VERSION="+v, docker_build_name, "/run.sh", clean])
+call(["docker","run","-t","-v", build_mount,"-v", config_mount, "-v", package_mount, "-e", "VERSION="+v, docker_build_name, "/run.sh", args.clean or "", args.no_test or ""])

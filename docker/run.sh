@@ -59,14 +59,13 @@ if grep update-alternatives /tmp/install.log &> /dev/null
 then
     echo "Package $PACKAGE_NAME.deb seems to be correctly configured."
 else
-    echo "Package $PACKAGE_NAME.deb is broken"
+    echo "Package $PACKAGE_NAME.deb does not configure correctly. See \"postinst\" script in debconf folder."
     exit 1
 fi
 
 echo ""
 echo "-----"
 echo ""
-
 
 apt purge -y $PACKAGE_NAME &> /tmp/uninstall.log
 if [[ "$?" != "0" ]]; then
@@ -77,4 +76,12 @@ else
     echo "Package $PACKAGE_NAME.deb uninstalls sucessfully"
     echo "The current java version is:"
     java -version
+fi
+
+if grep update-alternatives /tmp/uninstall.log &> /dev/null
+then
+    echo "Package $PACKAGE_NAME.deb seems to be correctly de-configured."
+else
+    echo "Package $PACKAGE_NAME.deb is not deconfigured corectly. See \"prerm\" script in debconf folder."
+    exit 1
 fi

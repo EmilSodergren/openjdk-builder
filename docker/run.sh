@@ -15,7 +15,7 @@ fi
 
 cd /build
 
-bash configure -q $CONFIG_PARAMS --prefix=/install/usr/lib/
+bash configure -q $CONFIG_PARAMS --disable-zip-debug-info --prefix=/install/usr/lib/
 if [[ "$1" = "--clean" ]]; then
     make clean
 fi

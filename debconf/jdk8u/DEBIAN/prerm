@@ -1,0 +1,18 @@
+#!/bin/sh -e
+
+basedir=/usr/lib/jvm/openjdk-1.8.0-emil
+files="jaotc java jjs keytool pack200 rmid rmiregistry unpack200 jar jarsigner javac javadoc javap jcmd jconsole jdb jdeprscan jdeps jhsdb jimage jinfo jlink jmap jmod jps jrunscript jshell jstack jstat jstatd rmic serialver"
+
+if [ "$1" = "remove" ] || [ "$1" = "deconfigure" ]; then
+  for i in $files; do
+    if [ -e $basedir/bin/$i ]; then
+      path=$basedir/bin/$i
+      if [ "$i" = "java" ]; then
+          if [ -e $basedir/jre/bin/$i ]; then
+              path=$basedir/jre/bin/$i
+          fi
+      fi
+      update-alternatives --remove $i $path
+    fi
+  done
+fi

@@ -1,0 +1,12 @@
+Source: openjdk-12
+Section: java
+Priority: extra
+Maintainer: Emil Sodergren <EmilSodergren@users.noreply.github.com>
+Package: openjdk-12-emil
+Version: 12.0
+Architecture: amd64
+Installed-Size: 167206
+Depends: java-common, libasound2, libc6, libgcc1, libx11-6, libxau6, libxcb1, libxdmcp6, libxext6, libxi6, libxrender1, libxtst6, zlib1g, libfontconfig1
+Provides: java8-jdk, java7-jdk, java7-sdk, java6-sdk, java5-sdk, java2-sdk, java-sdk, java-compiler, java8-runtime, java7-runtime, java6-runtime, java5-runtime, java2-runtime, java-runtime
+Description: From OpenJDK
+

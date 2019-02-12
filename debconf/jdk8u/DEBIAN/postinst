@@ -1,0 +1,31 @@
+#!/bin/sh -e
+
+priority=10000
+basedir=/usr/lib/jvm/openjdk-1.8.0-emil
+files="java jjs keytool orbd pack200 policytool rmid rmiregistry servertool tnameserv unpack200 appletviewer extcheck idlj jar jarsigner java-rmi.cgi javac javadoc javah javap jcmd jconsole jdb jdeps jhat jinfo jmap jps jrunscript jsadebugd jstack jstat jstatd native2ascii rmic schemagen serialver wsgen wsimport xjc"
+
+case "$1" in
+configure)
+  # remove $jdk/bin/java alternative, if any
+  # to ensure smooth upgrade from $jdk/bin/java to $jdk/jre/bin/java
+  old_java=`((update-alternatives --display java 2>/dev/null || echo "No java") | grep $basedir/bin/java | tr -d ' ') 2>/dev/null`
+  if [ -n "${old_java}" ] ; then
+    update-alternatives --remove java $basedir/bin/java
+  fi
+  for i in $files; do
+    if [ -e $basedir/bin/$i ]; then
+        path=$basedir/bin/$i
+        if [ "$i" = "java" ]; then
+            if [ -e $basedir/jre/bin/$i ]; then
+                path=$basedir/jre/bin/$i
+            fi
+        fi
+        cmd="update-alternatives --install /usr/bin/$i $i $path $priority"
+        if [ -e $basedir/man/man1/$i.1 ]; then
+            cmd="$cmd --slave /usr/share/man/man1/$i.1 $i.1 $basedir/man/man1/$i.1"
+        fi
+        $cmd
+    fi
+  done
+  ;;
+esac

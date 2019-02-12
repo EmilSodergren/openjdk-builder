@@ -50,7 +50,7 @@ if [[ "$?" != "0" ]]; then
     cat /tmp/install.log
     exit 1
 else
-    echo "Package $PACKAGE_NAME.deb installs sucessfully"
+    echo "Package $PACKAGE_NAME.deb installs successfully"
     echo "The current java version is:"
     java -version
 fi
@@ -73,7 +73,7 @@ if [[ "$?" != "0" ]]; then
     cat /tmp/uninstall.log
     exit 1
 else
-    echo "Package $PACKAGE_NAME.deb uninstalls sucessfully"
+    echo "Package $PACKAGE_NAME.deb uninstalls successfully"
     echo "The current java version is:"
     java -version
 fi

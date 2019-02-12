@@ -23,7 +23,10 @@ p.wait()
 clean = ""
 if (args.clean):
     clean = "--clean"
-builddir = join(os.getcwd(), v)+":/build"
-confdir = join(os.getcwd(), "debconf", v, "DEBIAN")+":/DEBIAN"
-packagedir = join(os.getcwd(), "packages")+":/packages"
-call(["docker","run","-t","-v", builddir,"-v", confdir, "-v", packagedir, "-e", "VERSION="+v, docker_build_name, "/run.sh", clean])
+build_mount = join(os.getcwd(), v)+":/build"
+config_mount = join(os.getcwd(), "debconf", v, "DEBIAN")+":/DEBIAN"
+packagedir = join(os.getcwd(), "packages")
+if not os.path.exists(packagedir):
+    os.makedirs(packagedir)
+package_mount = join(os.getcwd(), "packages")+":/packages"
+call(["docker","run","-t","-v", build_mount,"-v", config_mount, "-v", package_mount, "-e", "VERSION="+v, docker_build_name, "/run.sh", clean])

@@ -22,7 +22,7 @@ docker_build_name = "jdk_builder_"+v
 p = Popen(["docker", "build", "--build-arg", "JDK_VERSION="+args.bootstrap_jdk_package, "-t", docker_build_name, "."], cwd="./docker")
 p.wait()
 build_mount = join(os.getcwd(), v)+":/build"
-config_mount = join(os.getcwd(), "debconf", v, "DEBIAN")+":/DEBIAN"
+config_mount = join(os.getcwd(), "debconf", v)+":/DEBIAN"
 packagedir = join(os.getcwd(), "packages")
 if not os.path.exists(packagedir):
     os.makedirs(packagedir)

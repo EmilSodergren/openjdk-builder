@@ -11,6 +11,10 @@ do
         NO_TEST=1
         shift
         ;;
+        --no-pack)
+        NO_PACK=1
+        shift
+        ;;
     esac
 done
 if [[ "$VERSION" = "jdk8u" ]]; then
@@ -37,6 +41,11 @@ if [[ $CLEAN = 1 ]]; then
     make clean
 fi
 make images
+
+if [[ $NO_PACK = 1 ]]; then
+    exit 0
+fi
+
 make install
 
 popd > /dev/null

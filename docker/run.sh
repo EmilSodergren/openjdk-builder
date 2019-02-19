@@ -52,6 +52,7 @@ popd > /dev/null
 
 rm -rf $PACKAGE_NAME/usr/lib/bin
 cp -r /DEBIAN $PACKAGE_NAME
+sed -i "s#{package_name}#$PACKAGE_NAME#g" `find $PACKAGE_NAME/DEBIAN -type f`
 
 dpkg-deb --build $PACKAGE_NAME
 

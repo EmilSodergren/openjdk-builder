@@ -1,7 +1,7 @@
 #!/bin/sh -e
 
 priority=10001
-basedir=/usr/lib/jvm/openjdk-11-emil
+basedir=/usr/lib/jvm/{package_name}
 files="jaotc java jjs keytool pack200 rmid rmiregistry unpack200 jar jarsigner javac javadoc javap jcmd jconsole jdb jdeprscan jdeps jhsdb jimage jinfo jlink jmap jmod jps jrunscript jshell jstack jstat jstatd rmic serialver"
 
 case "$1" in

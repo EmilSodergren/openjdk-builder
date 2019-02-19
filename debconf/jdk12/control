@@ -2,7 +2,7 @@ Source: openjdk-12
 Section: java
 Priority: extra
 Maintainer: Emil Sodergren <EmilSodergren@users.noreply.github.com>
-Package: openjdk-12-emil
+Package: {package_name}
 Version: 12.0
 Architecture: amd64
 Installed-Size: 167206

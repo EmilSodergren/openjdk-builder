@@ -1,7 +1,7 @@
 #!/bin/sh -e
 
 basedir=/usr/lib/jvm/{package_name}
-files="jaotc java jjs keytool pack200 rmid rmiregistry unpack200 jar jarsigner javac javadoc javap jcmd jconsole jdb jdeprscan jdeps jhsdb jimage jinfo jlink jmap jmod jps jrunscript jshell jstack jstat jstatd rmic serialver"
+files="jaotc jar jarsigner java javac javadoc javap jcmd jconsole jdb jdeprscan jdeps jhsdb jimage jinfo jjs jlink jmap jmod jps jrunscript jshell jstack jstat jstatd keytool pack200 rmic rmid rmiregistry serialver unpack200"
 
 if [ "$1" = "remove" ] || [ "$1" = "deconfigure" ]; then
   for i in $files; do

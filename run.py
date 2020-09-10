@@ -3,6 +3,7 @@ import os
 from sys import exit
 from subprocess import call, Popen
 from argparse import ArgumentParser
+from shutil import copy
 
 parser = ArgumentParser(description='Setup the machine')
 
@@ -20,12 +21,15 @@ if not exists(v):
     exit(1)
 
 docker_build_name = "jdk_builder_"+v
-p = Popen(["docker", "build", "--build-arg", "JDK_VERSION="+args.bootstrap_jdk_package, "-t", docker_build_name, "."], cwd="./docker")
+copy(join(os.getcwd(), "packages", args.bootstrap_jdk_package), join(os.getcwd(), "docker"))
+p = Popen(["docker", "build", "--build-arg", "JDK_PACKAGE="+args.bootstrap_jdk_package, "-t", docker_build_name, "."], cwd="./docker")
 p.wait()
+os.remove(join(os.getcwd(), "docker", args.bootstrap_jdk_package))
 build_mount = join(os.getcwd(), v)+":/build"
 config_mount = join(os.getcwd(), "debconf", v)+":/DEBIAN"
 packagedir = join(os.getcwd(), "packages")
 if not os.path.exists(packagedir):
     os.makedirs(packagedir)
 package_mount = join(os.getcwd(), "packages")+":/packages"
-call(["docker","run","-t","-v", build_mount,"-v", config_mount, "-v", package_mount, "-e", "VERSION="+v, docker_build_name, "/run.sh", args.clean or "", args.no_test or "", args.no_pack or ""])
+cmd = ["docker","run","-t","-v", build_mount,"-v", config_mount, "-v", package_mount, "-e", "VERSION="+v, docker_build_name, "/run.sh", args.clean or "", args.no_test or "", args.no_pack or ""]
+call(cmd)

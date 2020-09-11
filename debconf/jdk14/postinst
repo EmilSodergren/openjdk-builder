@@ -2,7 +2,7 @@
 
 priority=100{priority}
 basedir=/usr/lib/jvm/{package_name}
-files="jaotc jar jarsigner java javac javadoc javap jcmd jconsole jdb jdeprscan jdeps jhsdb jimage jinfo jjs jlink jmap jmod jps jrunscript jshell jstack jstat jstatd keytool pack200 rmic rmid rmiregistry serialver unpack200"
+files="jaotc jar jarsigner java javac javadoc javap jcmd jconsole jdb jdeprscan jdeps jfr jhsdb jimage jinfo jjs jlink jmap jmod jpackage jps jrunscript jshell jstack jstat jstatd keytool rmic rmid rmiregistry serialver"
 
 case "$1" in
 configure)

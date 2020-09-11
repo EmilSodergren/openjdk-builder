@@ -65,6 +65,7 @@ popd > /dev/null
 rm -rf $PACKAGE_NAME/usr/lib/bin
 cp -r /DEBIAN $PACKAGE_NAME
 sed -i "s#{package_name}#$PACKAGE_NAME#g" `find $PACKAGE_NAME/DEBIAN -type f`
+sed -i "s#{priority}#${VERSION:3:2}#g" `find $PACKAGE_NAME/DEBIAN -type f`
 
 dpkg-deb --build $PACKAGE_NAME
 
@@ -76,8 +77,6 @@ if [[ $NO_TEST != 1 ]]; then
     echo "Install and verify $PACKAGE_NAME"
     echo "-----"
     echo ""
-
-    cd /packages
 
     apt install -y ./$PACKAGE_NAME.deb &> /tmp/install.log
     if [[ "$?" != "0" ]]; then

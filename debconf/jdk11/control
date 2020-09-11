@@ -1,6 +1,6 @@
 Source: openjdk-11
 Section: java
-Priority: extra
+Priority: optional
 Maintainer: Emil Sodergren <EmilSodergren@users.noreply.github.com>
 Package: {package_name}
 Version: 11.0

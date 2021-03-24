@@ -36,10 +36,26 @@ elif [[ "$VERSION" = "jdk14" ]]; then
     TIME=`date '+%F-%H-%M-%S'`
     CONFIG_PARAMS="--with-version-opt=$TIME --with-version-pre=emil --disable-warnings-as-errors"
     PACKAGE_NAME="openjdk-14-emil"
+elif [[ "$VERSION" = "jdk14u" ]]; then
+    TIME=`date '+%F-%H-%M-%S'`
+    CONFIG_PARAMS="--with-version-opt=$TIME --with-version-pre=emil --disable-warnings-as-errors"
+    PACKAGE_NAME="openjdk-14u-emil"
 elif [[ "$VERSION" = "jdk15" ]]; then
     TIME=`date '+%F-%H-%M-%S'`
     CONFIG_PARAMS="--with-version-opt=$TIME --with-version-pre=emil --disable-warnings-as-errors"
     PACKAGE_NAME="openjdk-15-emil"
+elif [[ "$VERSION" = "jdk15u" ]]; then
+    TIME=`date '+%F-%H-%M-%S'`
+    CONFIG_PARAMS="--with-version-opt=$TIME --with-version-pre=emil --disable-warnings-as-errors"
+    PACKAGE_NAME="openjdk-15u-emil"
+elif [[ "$VERSION" = "jdk16" ]]; then
+    TIME=`date '+%F-%H-%M-%S'`
+    CONFIG_PARAMS="--with-version-opt=$TIME --with-version-pre=emil --disable-warnings-as-errors"
+    PACKAGE_NAME="openjdk-16-emil"
+elif [[ "$VERSION" = "jdk16u" ]]; then
+    TIME=`date '+%F-%H-%M-%S'`
+    CONFIG_PARAMS="--with-version-opt=$TIME --with-version-pre=emil --disable-warnings-as-errors"
+    PACKAGE_NAME="openjdk-16u-emil"
 else
     echo "The version $VERSION is not in the run.sh script."
     exit 1

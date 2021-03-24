@@ -4,18 +4,20 @@ This repository is used to build .deb packages from OpenJDK source.
 It is tested with the following source repositories:
 
  - <https://hg.openjdk.java.net/jdk8u>
- - <https://hg.openjdk.java.net/jdk/jdk11/>
- - <https://hg.openjdk.java.net/jdk/jdk12/>
+ - <https://github.com/openjdk/jdk11/>
+ - <https://github.com/openjdk/jdk12/>
+ - <https://github.com/openjdk/jdk15/>
+ - <https://github.com/openjdk/jdk15u/>
 
 ## How to use
 
-Clone this repository, cd to it and make a mercurial clone of the OpenJDK repo you want to build (hg clone <url/to/repo>).
+Clone this repository, cd to it and clone the OpenJDK repo you want to build (hg/git clone <url/to/repo>).
 Make sure you have a recent version of docker-engine installed and run:
 
 `python3 run.py <jdk-version> <bootstrap-jdk-package> [--clean] [--no-test]`.
 
-The jdk-version should be the name of the folder where the source is, e.g. jdk8u, and the bootstrap-jdk-package should be
-an existing openjdk distribution from the debian package source, e.g. openjdk-8-jdk. According to OpenJDK a bootstrap-jdk
+The jdk-version should be the name of the folder where the source is, e.g. jdk11u, and the bootstrap-jdk-package should be
+an existing openjdk distribution from the debian package source, e.g. openjdk-11-jdk. According to OpenJDK a bootstrap-jdk
 will work if it has version N-1 when you want to build version N. However openjdk-8-jdk works for jdk8u and openjdk-11-jdk
 works for jdk11.
 

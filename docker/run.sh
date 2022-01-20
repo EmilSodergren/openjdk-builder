@@ -17,57 +17,26 @@ do
         ;;
     esac
 done
+TIME=`date '+%F-%H-%M-%S'`
 if [[ "$VERSION" = "jdk8u" ]]; then
-    CONFIG_PARAMS="--with-milestone=emil --disable-debug-symbols --disable-zip-debug-info"
-    PACKAGE_NAME="openjdk-1.8.0-emil"
-elif [[ "$VERSION" = "jdk11" ]]; then
-    TIME=`date '+%F-%H-%M-%S'`
-    CONFIG_PARAMS="--with-version-opt=$TIME --with-version-pre=emil --disable-warnings-as-errors"
-    PACKAGE_NAME="openjdk-11-emil"
-elif [[ "$VERSION" = "jdk12" ]]; then
-    TIME=`date '+%F-%H-%M-%S'`
-    CONFIG_PARAMS="--with-version-opt=$TIME --with-version-pre=emil --disable-warnings-as-errors"
-    PACKAGE_NAME="openjdk-12-emil"
-elif [[ "$VERSION" = "jdk13" ]]; then
-    TIME=`date '+%F-%H-%M-%S'`
-    CONFIG_PARAMS="--with-version-opt=$TIME --with-version-pre=emil --disable-warnings-as-errors"
-    PACKAGE_NAME="openjdk-13-emil"
-elif [[ "$VERSION" = "jdk14" ]]; then
-    TIME=`date '+%F-%H-%M-%S'`
-    CONFIG_PARAMS="--with-version-opt=$TIME --with-version-pre=emil --disable-warnings-as-errors"
-    PACKAGE_NAME="openjdk-14-emil"
-elif [[ "$VERSION" = "jdk14u" ]]; then
-    TIME=`date '+%F-%H-%M-%S'`
-    CONFIG_PARAMS="--with-version-opt=$TIME --with-version-pre=emil --disable-warnings-as-errors"
-    PACKAGE_NAME="openjdk-14u-emil"
-elif [[ "$VERSION" = "jdk15" ]]; then
-    TIME=`date '+%F-%H-%M-%S'`
-    CONFIG_PARAMS="--with-version-opt=$TIME --with-version-pre=emil --disable-warnings-as-errors"
-    PACKAGE_NAME="openjdk-15-emil"
-elif [[ "$VERSION" = "jdk15u" ]]; then
-    TIME=`date '+%F-%H-%M-%S'`
-    CONFIG_PARAMS="--with-version-opt=$TIME --with-version-pre=emil --disable-warnings-as-errors"
-    PACKAGE_NAME="openjdk-15u-emil"
-elif [[ "$VERSION" = "jdk16" ]]; then
-    TIME=`date '+%F-%H-%M-%S'`
-    CONFIG_PARAMS="--with-version-opt=$TIME --with-version-pre=emil --disable-warnings-as-errors"
-    PACKAGE_NAME="openjdk-16-emil"
-elif [[ "$VERSION" = "jdk16u" ]]; then
-    TIME=`date '+%F-%H-%M-%S'`
-    CONFIG_PARAMS="--with-version-opt=$TIME --with-version-pre=emil --disable-warnings-as-errors"
-    PACKAGE_NAME="openjdk-16u-emil"
+    CONFIG_PARAMS="--with-milestone=${VERSION_PRE} --disable-debug-symbols --disable-zip-debug-info"
+    PACKAGE_NAME="openjdk-1.8.0-${VERSION_PRE}"
 else
-    echo "The version $VERSION is not in the run.sh script."
-    exit 1
+    CONFIG_PARAMS="--with-version-opt=$TIME --with-version-pre=${VERSION_PRE} --disable-warnings-as-errors"
+    PACKAGE_NAME="openjdk-${VERSION:3}-${VERSION_PRE}"
 fi
+
+echo "BUILDING"
+echo "VERSION= ${VERSION}"
+echo "PACKAGE= ${PACKAGE_NAME}"
 
 mkdir $PACKAGE_NAME
 
 pushd /build > /dev/null
-bash configure -q $CONFIG_PARAMS --with-native-debug-symbols=none --prefix=/$PACKAGE_NAME/usr/lib/
 if [[ $CLEAN = 1 ]]; then
     make clean
 fi
+bash configure -q $CONFIG_PARAMS --with-native-debug-symbols=none --prefix=/$PACKAGE_NAME/usr/lib/
 make images
 
 if [[ $NO_PACK = 1 ]]; then
@@ -79,9 +48,24 @@ make install
 popd > /dev/null
 
 rm -rf $PACKAGE_NAME/usr/lib/bin
+# Rename the built folder to $PACKAGE_NAME
+mv $PACKAGE_NAME/usr/lib/jvm/* $PACKAGE_NAME/usr/lib/jvm/$PACKAGE_NAME
 cp -r /DEBIAN $PACKAGE_NAME
+sed -i "s#{source}#openjdk-${VERSION:3:2}#g" `find $PACKAGE_NAME/DEBIAN -type f`
 sed -i "s#{package_name}#$PACKAGE_NAME#g" `find $PACKAGE_NAME/DEBIAN -type f`
 sed -i "s#{priority}#${VERSION:3:2}#g" `find $PACKAGE_NAME/DEBIAN -type f`
+sed -i "s#{maintainer_name}#${MAINTAINER_NAME}#g" `find $PACKAGE_NAME/DEBIAN -type f`
+sed -i "s#{maintainer_email}#${MAINTAINER_EMAIL}#g" `find $PACKAGE_NAME/DEBIAN -type f`
+sed -i "s#{version}#${VERSION:3:2}.0#g" `find $PACKAGE_NAME/DEBIAN -type f`
+SIZE=`du -shk $PACKAGE_NAME/usr/lib/jvm/$PACKAGE_NAME | awk '{print $1}'`
+sed -i "s#{size}#${SIZE}#g" `find $PACKAGE_NAME/DEBIAN -type f`
+REMOTE_URL=`git -C /build remote get-url --all origin`
+sed -i "s#{remote_url}#$REMOTE_URL#g" `find $PACKAGE_NAME/DEBIAN -type f`
+COMMIT_HASH=`git -C /build rev-parse --short HEAD`
+sed -i "s#{commit}#$COMMIT_HASH#g" `find $PACKAGE_NAME/DEBIAN -type f`
+
+echo "Building the following deb package:"
+cat $PACKAGE_NAME/DEBIAN/control
 
 dpkg-deb --build $PACKAGE_NAME
 
@@ -94,7 +78,7 @@ if [[ $NO_TEST != 1 ]]; then
     echo "-----"
     echo ""
 
-    apt install -y ./$PACKAGE_NAME.deb &> /tmp/install.log
+    apt-get install -y ./$PACKAGE_NAME.deb &> /tmp/install.log
     if [[ "$?" != "0" ]]; then
         echo "Error:"
         cat /tmp/install.log
@@ -109,7 +93,8 @@ if [[ $NO_TEST != 1 ]]; then
     then
         echo "Package $PACKAGE_NAME.deb seems to be correctly configured."
     else
-        echo "Package $PACKAGE_NAME.deb does not configure correctly. See \"postinst\" script in debconf folder."
+        echo "ERROR: Package $PACKAGE_NAME.deb does not configure correctly. See \"postinst\" script in debconf folder."
+        cat /tmp/install.log
         exit 1
     fi
 
@@ -117,9 +102,9 @@ if [[ $NO_TEST != 1 ]]; then
     echo "-----"
     echo ""
 
-    apt purge -y $PACKAGE_NAME &> /tmp/uninstall.log
+    apt-get purge -y $PACKAGE_NAME &> /tmp/uninstall.log
     if [[ "$?" != "0" ]]; then
-        echo "Error:"
+        echo "ERROR:"
         cat /tmp/uninstall.log
         exit 1
     else
@@ -132,7 +117,8 @@ if [[ $NO_TEST != 1 ]]; then
     then
         echo "Package $PACKAGE_NAME.deb seems to be correctly de-configured."
     else
-        echo "Package $PACKAGE_NAME.deb is not deconfigured corectly. See \"prerm\" script in debconf folder."
+        echo "ERROR: Package $PACKAGE_NAME.deb is not deconfigured corectly. See \"prerm\" script in debconf folder."
+        cat /tmp/install.log
         exit 1
     fi
 fi

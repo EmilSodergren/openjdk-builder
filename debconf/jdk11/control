@@ -1,12 +1,12 @@
-Source: openjdk-11
+Source: {source}
 Section: java
 Priority: optional
-Maintainer: Emil Sodergren <EmilSodergren@users.noreply.github.com>
+Maintainer: {maintainer_name} <{maintainer_email}>
 Package: {package_name}
-Version: 11.0
+Version: {version}
 Architecture: amd64
-Installed-Size: 183416
+Installed-Size: {size}
 Depends: java-common, libasound2, libc6, libgcc1, libx11-6, libxau6, libxcb1, libxdmcp6, libxext6, libxi6, libxrender1, libxtst6, zlib1g, libfontconfig1
 Provides: java-compiler, java-sdk, java10-sdk, java11-sdk, java2-sdk, java5-sdk, java6-sdk, java7-sdk, java8-sdk, java9-sdk
-Description: From OpenJDK
+Description: From OpenJDK. Built from: {remote_url}, on commit: {commit}
 

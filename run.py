@@ -1,11 +1,16 @@
+#!/usr/bin/python3
 from os.path import exists, join
 import os
 import re
+import sys
 from sys import exit
 from subprocess import call, Popen
 from argparse import ArgumentParser
 from os.path import basename
 from shutil import copy
+import json
+
+required_keys = ['maintainer_name', 'maintainer_email', 'version_pre']
 
 parser = ArgumentParser(description='Setup the machine')
 
@@ -39,9 +44,16 @@ packagedir = join(os.getcwd(), "packages")
 if not os.path.exists(packagedir):
     os.makedirs(packagedir)
 package_mount = join(os.getcwd(), "packages") + ":/packages"
+f = open("info.json")
+params = json.load(f)
+if not all(key in params.keys() for key in required_keys):
+    print("ERROR: Required key is not present in info.json")
+    print("Needs:\n" + "\t\n".join(required_keys))
+    sys.exit(1)
 cmd = [
-    "docker", "run", "-t", "-v", build_mount, "-v", config_mount, "-v", package_mount, "-e", "VERSION=" + v, docker_build_name, "/run.sh",
-    args.clean or "", args.no_test or "", args.no_pack or ""
+    "docker", "run", "-t", "-v", build_mount, "-v", config_mount, "-v", package_mount, "-e", "VERSION=" + v, "-e",
+    "MAINTAINER_NAME=" + params["maintainer_name"], "-e", "MAINTAINER_EMAIL=" + params["maintainer_email"], "-e",
+    "VERSION_PRE=" + params["version_pre"], docker_build_name, "/run.sh", args.clean or "", args.no_test or "", args.no_pack or ""
 ]
 print(re.sub("--.*", "", " ".join(cmd).replace("-t", "-it").replace("/run.sh", "")))
 call(cmd)

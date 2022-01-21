@@ -17,7 +17,7 @@ do
         ;;
     esac
 done
-TIME=`date '+%F-%H-%M-%S'`
+TIME=`date '+%FT%H-%M-%S'`
 if [[ "$VERSION" = "jdk8u" ]]; then
     CONFIG_PARAMS="--with-milestone=${VERSION_PRE} --disable-debug-symbols --disable-zip-debug-info"
     PACKAGE_NAME="openjdk-1.8.0-${VERSION_PRE}"
@@ -63,7 +63,12 @@ REMOTE_URL=`git -C /build remote get-url --all origin`
 sed -i "s#{remote_url}#$REMOTE_URL#g" `find $PACKAGE_NAME/DEBIAN -type f`
 COMMIT_HASH=`git -C /build rev-parse --short HEAD`
 sed -i "s#{commit}#$COMMIT_HASH#g" `find $PACKAGE_NAME/DEBIAN -type f`
+COMMIT_DATE=`git -C /build show -s --format=%ci $COMMIT_HASH`
+sed -i "s#{commit_date}#$COMMIT_DATE#g" `find $PACKAGE_NAME/DEBIAN -type f`
+sed -i "s#{current_time}#$TIME#g" `find $PACKAGE_NAME/DEBIAN -type f`
 
+
+echo ""
 echo "Building the following deb package:"
 cat $PACKAGE_NAME/DEBIAN/control
 

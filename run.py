@@ -10,6 +10,29 @@ from os.path import basename
 from shutil import copy
 import json
 
+ver_nr = re.compile(r"^jdk(\d*)u?")
+
+
+def getConfDirFromVersion(v):
+    version_number = None
+    try:
+        version_number = int(ver_nr.match(v)[1])
+    except NameError:
+        print("{} Could not be parsed as an integer".format(version_number))
+        sys.exit(2)
+
+    if version_number < 11:
+        return 'jdk8u'
+    elif version_number < 12:
+        return 'jdk11'
+    elif version_number < 14:
+        return 'jdk12-13'
+    elif version_number < 15:
+        return 'jdk14'
+    else:
+        return 'jdk15-'
+
+
 required_keys = ['maintainer_name', 'maintainer_email', 'version_pre']
 
 parser = ArgumentParser(description='Setup the machine')
@@ -39,7 +62,7 @@ p = Popen(["docker", "build", "--build-arg", "JDK_PACKAGE=" + args.bootstrap_jdk
 p.wait()
 os.remove(join(os.getcwd(), "docker", args.bootstrap_jdk_package))
 build_mount = join(os.getcwd(), v) + ":/build"
-config_mount = join(os.getcwd(), "debconf", v) + ":/DEBIAN"
+config_mount = join(os.getcwd(), "debconf", getConfDirFromVersion(v)) + ":/DEBIAN"
 packagedir = join(os.getcwd(), "packages")
 if not os.path.exists(packagedir):
     os.makedirs(packagedir)
@@ -52,8 +75,8 @@ if not all(key in params.keys() for key in required_keys):
     sys.exit(1)
 cmd = [
     "docker", "run", "-t", "-v", build_mount, "-v", config_mount, "-v", package_mount, "-e", "VERSION=" + v, "-e",
-    "MAINTAINER_NAME=" + params["maintainer_name"], "-e", "MAINTAINER_EMAIL=" + params["maintainer_email"], "-e",
-    "VERSION_PRE=" + params["version_pre"], docker_build_name, "/run.sh", args.clean or "", args.no_test or "", args.no_pack or ""
+    "MAINTAINER_NAME=\"{}\"".format(params["maintainer_name"]), "-e", "MAINTAINER_EMAIL={}".format(params["maintainer_email"]), "-e",
+    "VERSION_PRE={}".format(params["version_pre"]), docker_build_name, "/run.sh", args.clean or "", args.no_test or "", args.no_pack or ""
 ]
 print(re.sub("--.*", "", " ".join(cmd).replace("-t", "-it").replace("/run.sh", "")))
 call(cmd)

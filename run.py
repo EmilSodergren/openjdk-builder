@@ -40,6 +40,7 @@ parser = ArgumentParser(description='Setup the machine')
 parser.add_argument('source_version', help='Version of JDK to build, needs to correspond to the folder name')
 parser.add_argument('bootstrap_jdk_package',
                     help='Which version to use as bootstrap JDK, by spec this should most of the time be JDK version N-1')
+parser.add_argument('--tag', '-t', required=True, help='What tag of the jdk should be built, this will also be part of the package name')
 parser.add_argument('--clean', '-c', action='store_const', const='--clean', help='Should the old binaries be removed before build')
 parser.add_argument('--no-test',
                     action='store_const',
@@ -76,7 +77,8 @@ if not all(key in params.keys() for key in required_keys):
 cmd = [
     "docker", "run", "-t", "-v", build_mount, "-v", config_mount, "-v", package_mount, "-e", "VERSION=" + v, "-e",
     "MAINTAINER_NAME=\"{}\"".format(params["maintainer_name"]), "-e", "MAINTAINER_EMAIL={}".format(params["maintainer_email"]), "-e",
-    "VERSION_PRE={}".format(params["version_pre"]), docker_build_name, "/run.sh", args.clean or "", args.no_test or "", args.no_pack or ""
+    "VERSION_PRE={}".format(params["version_pre"]), docker_build_name, "/run.sh", "--tag", args.tag, args.clean or "", args.no_test or "",
+    args.no_pack or ""
 ]
 print(re.sub("--.*", "", " ".join(cmd).replace("-t", "-it").replace("/run.sh", "")))
 call(cmd)

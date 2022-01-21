@@ -1,8 +1,11 @@
 #!/bin/bash -e
 
-for i in "$@"
-do
-    case $i in
+CLEAN=0
+NO_TEST=0
+NO_PACK=0
+
+while [[ $# -gt 0 ]]; do
+    case $1 in
         --clean)
         CLEAN=1
         shift
@@ -15,20 +18,32 @@ do
         NO_PACK=1
         shift
         ;;
+        --tag)
+        TAG="$2"
+        shift
+        shift
+        ;;
+        *)
+        shift
+        ;;
     esac
 done
-TIME=`date '+%FT%H-%M-%S'`
+TIME=$(date '+%FT%H-%M-%S')
+PACKAGE_NAME="openjdk-${TAG}-${VERSION_PRE}"
 if [[ "$VERSION" = "jdk8u" ]]; then
     CONFIG_PARAMS="--with-milestone=${VERSION_PRE} --disable-debug-symbols --disable-zip-debug-info"
-    PACKAGE_NAME="openjdk-1.8.0-${VERSION_PRE}"
 else
     CONFIG_PARAMS="--with-version-opt=$TIME --with-version-pre=${VERSION_PRE} --disable-warnings-as-errors"
-    PACKAGE_NAME="openjdk-${VERSION:3}-${VERSION_PRE}"
 fi
 
-echo "BUILDING"
-echo "VERSION= ${VERSION}"
-echo "PACKAGE= ${PACKAGE_NAME}"
+echo "-- BUILDING --"
+echo "-- CLEAN   = ${CLEAN}"
+echo "-- NO_TEST = ${NO_TEST}"
+echo "-- NO_PACK = ${NO_PACK}"
+echo "-- VERSION = ${VERSION}"
+echo "-- PACKAGE = ${PACKAGE_NAME}"
+echo "-- TIME    = ${TIME}"
+echo "-- TAG     = ${TAG}"
 
 mkdir $PACKAGE_NAME
 
@@ -36,6 +51,9 @@ pushd /build > /dev/null
 if [[ $CLEAN = 1 ]]; then
     make clean
 fi
+echo ""
+echo "Checking out branch ${TAG}"
+git -c advice.detachedHead=false checkout ${TAG}
 bash configure -q $CONFIG_PARAMS --with-native-debug-symbols=none --prefix=/$PACKAGE_NAME/usr/lib/
 make images
 

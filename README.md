@@ -5,9 +5,12 @@ It is tested with the following source repositories:
 
  - <https://hg.openjdk.java.net/jdk8u>
  - <https://github.com/openjdk/jdk11/>
+ - <https://github.com/openjdk/jdk11u/>
  - <https://github.com/openjdk/jdk12/>
  - <https://github.com/openjdk/jdk15/>
  - <https://github.com/openjdk/jdk15u/>
+ - <https://github.com/openjdk/jdk16u/>
+ - <https://github.com/openjdk/jdk17u/>
 
 ## How to use
 

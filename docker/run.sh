@@ -19,7 +19,7 @@ while [[ $# -gt 0 ]]; do
         shift
         ;;
         --tag)
-        TAG="$2"
+        CO_TAG="$2"
         shift
         shift
         ;;
@@ -29,13 +29,19 @@ while [[ $# -gt 0 ]]; do
     esac
 done
 TIME=$(date '+%FT%H-%M-%S')
-PACKAGE_NAME="openjdk-${TAG}-${VERSION_PRE}"
-if [[ "$VERSION" = "jdk8u" ]]; then
+# Include version number in TAG if it does not contain it
+if [[ "$VERSION" == "jdk8u" ]]; then
     CONFIG_PARAMS="--with-milestone=${VERSION_PRE} --disable-debug-symbols --disable-zip-debug-info"
 else
     CONFIG_PARAMS="--with-version-opt=$TIME --with-version-pre=${VERSION_PRE} --disable-warnings-as-errors"
 fi
-
+if [[ $CO_TAG == *"${VERSION:3:2}"* ]]; then
+    TAG=$CO_TAG
+else
+    TAG="${VERSION:3:2}-$CO_TAG"
+fi
+PACKAGE_NAME="openjdk-${TAG}-${VERSION_PRE}"
+echo ""
 echo "-- BUILDING --"
 echo "-- CLEAN   = ${CLEAN}"
 echo "-- NO_TEST = ${NO_TEST}"
@@ -45,29 +51,26 @@ echo "-- PACKAGE = ${PACKAGE_NAME}"
 echo "-- TIME    = ${TIME}"
 echo "-- TAG     = ${TAG}"
 
-mkdir $PACKAGE_NAME
 
 pushd /build > /dev/null
 if [[ $CLEAN = 1 ]]; then
     make clean
 fi
 echo ""
-echo "Checking out branch ${TAG}"
-git -c advice.detachedHead=false checkout ${TAG}
-bash configure -q $CONFIG_PARAMS --with-native-debug-symbols=none --prefix=/$PACKAGE_NAME/usr/lib/
+echo "Checking out tag ${CO_TAG}"
+git -c advice.detachedHead=false checkout ${CO_TAG}
+bash configure -q $CONFIG_PARAMS --with-native-debug-symbols=none
 make images
 
 if [[ $NO_PACK = 1 ]]; then
     exit 0
 fi
 
-make install
-
 popd > /dev/null
 
-rm -rf $PACKAGE_NAME/usr/lib/bin
 # Rename the built folder to $PACKAGE_NAME
-mv $PACKAGE_NAME/usr/lib/jvm/* $PACKAGE_NAME/usr/lib/jvm/$PACKAGE_NAME
+mkdir -p /$PACKAGE_NAME/usr/lib/jvm/$PACKAGE_NAME
+mv /build/build/*/images/jdk/* /$PACKAGE_NAME/usr/lib/jvm/$PACKAGE_NAME
 cp -r /DEBIAN $PACKAGE_NAME
 sed -i "s#{source}#openjdk-${VERSION:3:2}#g" `find $PACKAGE_NAME/DEBIAN -type f`
 sed -i "s#{package_name}#$PACKAGE_NAME#g" `find $PACKAGE_NAME/DEBIAN -type f`

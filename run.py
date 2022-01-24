@@ -75,10 +75,10 @@ if not all(key in params.keys() for key in required_keys):
     print("Needs:\n" + "\t\n".join(required_keys))
     sys.exit(1)
 cmd = [
-    "docker", "run", "-t", "-v", build_mount, "-v", config_mount, "-v", package_mount, "-e", "VERSION=" + v, "-e",
-    "MAINTAINER_NAME=\"{}\"".format(params["maintainer_name"]), "-e", "MAINTAINER_EMAIL={}".format(params["maintainer_email"]), "-e",
-    "VERSION_PRE={}".format(params["version_pre"]), docker_build_name, "/run.sh", "--tag", args.tag, args.clean or "", args.no_test or "",
-    args.no_pack or ""
+    "docker", "run", "-t", "-v", "/etc/timezone:/etc/timezone:ro", "-v", build_mount, "-v", config_mount, "-v", package_mount, "-e",
+    "VERSION=" + v, "-e", "MAINTAINER_NAME=\"{}\"".format(params["maintainer_name"]), "-e",
+    "MAINTAINER_EMAIL={}".format(params["maintainer_email"]), "-e", "VERSION_PRE={}".format(params["version_pre"]), docker_build_name,
+    "/run.sh", "--tag", args.tag, args.clean or "", args.no_test or "", args.no_pack or ""
 ]
 print(re.sub("--.*", "", " ".join(cmd).replace("-t", "-it").replace("/run.sh", "")))
 call(cmd)

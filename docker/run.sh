@@ -59,7 +59,7 @@ fi
 echo ""
 echo "Checking out tag ${CO_TAG}"
 git -c advice.detachedHead=false checkout ${CO_TAG}
-bash configure -q $CONFIG_PARAMS --with-native-debug-symbols=none
+bash configure $CONFIG_PARAMS --with-native-debug-symbols=none
 make images
 
 if [[ $NO_PACK = 1 ]]; then

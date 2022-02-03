@@ -27,5 +27,18 @@ configure)
         $cmd
     fi
   done
+  # Install local certificates into the cacerts java ca store
+  cert_dir="/usr/local/share/ca-certificates/"
+  for cert_entry in `ls ${cert_dir}`; do
+    if [ -d "${cert_dir}${cert_entry}" ]; then
+      for cert in `ls ${cert_dir}${cert_entry}`; do
+        if [ -f "${cert_dir}${cert_entry}/${cert}" ]; then
+            keytool -import -trustcacerts -keystore -cacerts -alias ${cert%.*} -file ${cert_dir}/${cert_entry}/${cert} -noprompt -deststorepass changeit
+        fi
+      done
+    elif [ -f ${cert_entry} ]; then
+        keytool -import -trustcacerts -keystore -cacerts -alias ${cert_entry%.*} -file ${cert_dir}/${cert_entry} -noprompt -deststorepass changeit
+    fi
+  done
   ;;
 esac

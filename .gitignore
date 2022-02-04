@@ -1,3 +1,4 @@
 /jdk*
 /packages
 info.json
+docker/Dockerfile

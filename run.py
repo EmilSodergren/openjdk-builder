@@ -9,6 +9,7 @@ from argparse import ArgumentParser
 from os.path import basename
 from shutil import copy
 import json
+import fileinput
 
 ver_nr = re.compile(r"^jdk(\d*)u?")
 
@@ -33,7 +34,7 @@ def getConfDirFromVersion(v):
         return 'jdk15-'
 
 
-required_keys = ['maintainer_name', 'maintainer_email', 'version_pre']
+required_keys = ['base_image', 'maintainer_name', 'maintainer_email', 'version_pre']
 
 parser = ArgumentParser(description='Setup the machine')
 
@@ -57,6 +58,17 @@ if not exists(v):
     print('No such version exists')
     exit(1)
 
+f = open("info.json")
+params = json.load(f)
+if not all(key in params.keys() for key in required_keys):
+    print("ERROR: Required key is not present in info.json")
+    print("Needs:\n" + "\t\n".join(required_keys))
+    sys.exit(1)
+
+copy("docker/Dockerfile.in", "docker/Dockerfile")
+for line in fileinput.input("docker/Dockerfile", inplace=True):
+    print(line.replace('{BASE_IMAGE}', params["base_image"]), end='')
+
 docker_build_name = "jdk_builder_" + v
 copy(join(os.getcwd(), "packages", args.bootstrap_jdk_package), join(os.getcwd(), "docker"))
 p = Popen(["docker", "build", "--build-arg", "JDK_PACKAGE=" + args.bootstrap_jdk_package, "-t", docker_build_name, "."], cwd="./docker")
@@ -68,12 +80,7 @@ packagedir = join(os.getcwd(), "packages")
 if not os.path.exists(packagedir):
     os.makedirs(packagedir)
 package_mount = join(os.getcwd(), "packages") + ":/packages"
-f = open("info.json")
-params = json.load(f)
-if not all(key in params.keys() for key in required_keys):
-    print("ERROR: Required key is not present in info.json")
-    print("Needs:\n" + "\t\n".join(required_keys))
-    sys.exit(1)
+
 cmd = [
     "docker", "run", "-t", "-v", "/etc/timezone:/etc/timezone:ro", "-v", build_mount, "-v", config_mount, "-v", package_mount, "-e",
     "VERSION=" + v, "-e", "MAINTAINER_NAME=\"{}\"".format(params["maintainer_name"]), "-e",

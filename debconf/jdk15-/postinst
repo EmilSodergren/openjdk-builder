@@ -4,6 +4,8 @@ priority=100{priority}
 basedir=/usr/lib/jvm/{package_name}
 files="jaotc jar jarsigner java javac javadoc javap jcmd jconsole jdb jdeprscan jdeps jfr jhsdb jimage jinfo jlink jmap jmod jpackage jps jrunscript jshell jstack jstat jstatd keytool rmic rmid rmiregistry serialver"
 
+common_keytool_args="-import -trustcacerts -cacerts -noprompt -deststorepass changeit"
+
 case "$1" in
 configure)
   # remove $jdk/bin/java alternative, if any
@@ -14,17 +16,17 @@ configure)
   fi
   for i in $files; do
     if [ -e $basedir/bin/$i ]; then
-        path=$basedir/bin/$i
-        if [ "$i" = "java" ]; then
-            if [ -e $basedir/jre/bin/$i ]; then
-                path=$basedir/jre/bin/$i
-            fi
+      path=$basedir/bin/$i
+      if [ "$i" = "java" ]; then
+        if [ -e $basedir/jre/bin/$i ]; then
+          path=$basedir/jre/bin/$i
         fi
-        cmd="update-alternatives --install /usr/bin/$i $i $path $priority"
-        if [ -e $basedir/man/man1/$i.1 ]; then
-            cmd="$cmd --slave /usr/share/man/man1/$i.1 $i.1 $basedir/man/man1/$i.1"
-        fi
-        $cmd
+      fi
+      cmd="update-alternatives --install /usr/bin/$i $i $path $priority"
+      if [ -e $basedir/man/man1/$i.1 ]; then
+        cmd="$cmd --slave /usr/share/man/man1/$i.1 $i.1 $basedir/man/man1/$i.1"
+      fi
+      $cmd
     fi
   done
   # Install local certificates into the cacerts java ca store
@@ -33,11 +35,11 @@ configure)
     if [ -d "${cert_dir}${cert_entry}" ]; then
       for cert in `ls ${cert_dir}${cert_entry}`; do
         if [ -f "${cert_dir}${cert_entry}/${cert}" ]; then
-            keytool -import -trustcacerts -keystore -cacerts -alias ${cert%.*} -file ${cert_dir}/${cert_entry}/${cert} -noprompt -deststorepass changeit
+          keytool ${common_keytool_args} -alias ${cert%.*} -file ${cert_dir}/${cert_entry}/${cert}
         fi
       done
     elif [ -f ${cert_entry} ]; then
-        keytool -import -trustcacerts -keystore -cacerts -alias ${cert_entry%.*} -file ${cert_dir}/${cert_entry} -noprompt -deststorepass changeit
+      keytool ${common_keytool_args} -alias ${cert_entry%.*} -file ${cert_dir}/${cert_entry}
     fi
   done
   ;;

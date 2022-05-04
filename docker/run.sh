@@ -53,8 +53,9 @@ echo "-- TAG     = ${TAG}"
 
 
 pushd /build > /dev/null
+git config --global --add safe.directory /build
 if [[ $CLEAN = 1 ]]; then
-    make clean
+    git clean -xdff
 fi
 echo ""
 echo "Checking out tag ${CO_TAG}"

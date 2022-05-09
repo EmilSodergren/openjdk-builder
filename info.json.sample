@@ -1,5 +1,5 @@
 {
-    "base_image": "debian:buster-slim",
+    "base_image": "{BASE_IMAGE}",
     "maintainer_name": "{NAME}",
     "maintainer_email": "{EMAIL}",
     "version_pre": "{VERSION_PRE}"

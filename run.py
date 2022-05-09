@@ -11,15 +11,15 @@ from shutil import copy
 import json
 import fileinput
 
-ver_nr = re.compile(r"^jdk(\d*)u?")
+ver_nr = re.compile(r"^jdk(\d*)u?$")
 
 
 def getConfDirFromVersion(v):
-    version_number = None
-    try:
-        version_number = int(ver_nr.match(v)[1])
-    except NameError:
-        print("{} Could not be parsed as an integer".format(version_number))
+    version_number = ver_nr.match(v)
+    if version_number:
+        version_number = int(version_number.group(1))
+    else:
+        print("Could not parse an integer from {}".format(v))
         sys.exit(2)
 
     if version_number < 11:

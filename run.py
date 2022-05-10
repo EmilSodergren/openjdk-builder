@@ -93,5 +93,5 @@ cmd = [
     "MAINTAINER_EMAIL={}".format(params["maintainer_email"]), "-e", "VERSION_PRE={}".format(params["version_pre"]), docker_build_name,
     "/run.sh", "--tag", args.tag, args.clean or "", args.no_test or "", args.no_pack or "", args.chown or ""
 ]
-print(re.sub("--.*", "", " ".join(cmd).replace("-t", "-it").replace("/run.sh", "")))
+print(re.sub("--[^r][^m].*", "", " ".join(cmd).replace("-t", "-it").replace("/run.sh", "")))
 call(cmd)

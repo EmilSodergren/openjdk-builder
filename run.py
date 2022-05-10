@@ -88,7 +88,7 @@ if not os.path.exists(packagedir):
 package_mount = join(os.getcwd(), "packages") + ":/packages"
 
 cmd = [
-    "docker", "run", "-t", "-v", "/etc/timezone:/etc/timezone:ro", "-v", build_mount, "-v", config_mount, "-v", package_mount, "-e",
+    "docker", "run", "--rm", "-t", "-v", "/etc/timezone:/etc/timezone:ro", "-v", build_mount, "-v", config_mount, "-v", package_mount, "-e",
     "VERSION=" + v, "-e", "MAINTAINER_NAME=\"{}\"".format(params["maintainer_name"]), "-e",
     "MAINTAINER_EMAIL={}".format(params["maintainer_email"]), "-e", "VERSION_PRE={}".format(params["version_pre"]), docker_build_name,
     "/run.sh", "--tag", args.tag, args.clean or "", args.no_test or "", args.no_pack or "", args.chown or ""

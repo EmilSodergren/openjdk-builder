@@ -17,7 +17,7 @@ It is tested with the following source repositories:
 Clone this repository, cd to it and clone the OpenJDK repo you want to build (hg/git clone <url/to/repo>).
 Make sure you have a recent version of docker-engine installed and run:
 
-`python3 run.py <jdk-version> <bootstrap-jdk-package> --tag <tag> [--clean] [--no-test] [--no-pack]`.
+`python3 run.py <jdk-version> <bootstrap-jdk-package> --tag <tag> [--clean] [--no-test] [--no-pack] [--chown]`.
 
 The jdk-version should be the name of the folder where the source is, e.g. jdk11u, and the bootstrap-jdk-package should be
 a prebuilt openjdk deb package. The bootstrap-jdk should be placed in the package folder. According to OpenJDK a bootstrap-jdk
@@ -36,3 +36,5 @@ The flag `--no-test` skips the install/uninstall test of the built package to te
 This option has no effect if --no-pack is given.
 
 The flag `--no-pack` skips the creation of the .deb package and only builds the source.
+
+The flag `--chown` will change the ownership of the build artifacts to the user that runs the container when the build is complete.

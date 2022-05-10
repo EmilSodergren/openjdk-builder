@@ -68,10 +68,10 @@ if [[ $NO_PACK = 1 ]]; then
 fi
 
 popd > /dev/null
-
+pushd ${HOME} > /dev/null
 # Rename the built folder to $PACKAGE_NAME
-mkdir -p /$PACKAGE_NAME/usr/lib/jvm/$PACKAGE_NAME
-mv /build/build/*/images/jdk/* /$PACKAGE_NAME/usr/lib/jvm/$PACKAGE_NAME
+mkdir -p $PACKAGE_NAME/usr/lib/jvm/$PACKAGE_NAME
+mv /build/build/*/images/jdk/* $PACKAGE_NAME/usr/lib/jvm/$PACKAGE_NAME
 cp -r /DEBIAN $PACKAGE_NAME
 sed -i "s#{source}#openjdk-${VERSION:3:2}#g" `find $PACKAGE_NAME/DEBIAN -type f`
 sed -i "s#{package_name}#$PACKAGE_NAME#g" `find $PACKAGE_NAME/DEBIAN -type f`
@@ -151,3 +151,4 @@ if [[ $NO_TEST != 1 ]]; then
 fi
 
 mv $PACKAGE_NAME.deb /packages/
+popd > /dev/null

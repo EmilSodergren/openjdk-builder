@@ -3,13 +3,13 @@ from os.path import exists, join
 import os
 import re
 import sys
+from string import Template
 from sys import exit
 from subprocess import call, Popen
 from argparse import ArgumentParser
 from os.path import basename
 from shutil import copy
 import json
-import fileinput
 
 ver_nr = re.compile(r"^jdk(\d*)u?$")
 
@@ -58,16 +58,18 @@ if not exists(v):
     print('No such version exists')
     exit(1)
 
-f = open("info.json")
-params = json.load(f)
-if not all(key in params.keys() for key in required_keys):
-    print("ERROR: Required key is not present in info.json")
-    print("Needs:\n" + "\t\n".join(required_keys))
-    sys.exit(1)
+with open("info.json") as f:
+    params = json.load(f)
+    if not all(key in params.keys() for key in required_keys):
+        print("ERROR: Required key is not present in info.json")
+        print("Needs:\n" + "\t\n".join(required_keys))
+        sys.exit(1)
 
-copy("docker/Dockerfile.in", "docker/Dockerfile")
-for line in fileinput.input("docker/Dockerfile", inplace=True):
-    print(line.replace('{BASE_IMAGE}', params["base_image"]), end='')
+templ_map = {'USER_ID': str(os.getuid()), 'GROUP_ID': str(os.getgid()), 'BASE_IMAGE': params["base_image"]}
+with open("docker/Dockerfile.in") as f:
+    docker_file = Template(f.read())
+    with open("docker/Dockerfile", 'w') as outf:
+        outf.write(docker_file.safe_substitute(templ_map))
 
 docker_build_name = "jdk_builder_" + v
 copy(join(os.getcwd(), "packages", args.bootstrap_jdk_package), join(os.getcwd(), "docker"))

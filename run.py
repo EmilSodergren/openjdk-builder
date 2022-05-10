@@ -48,6 +48,10 @@ parser.add_argument('--no-test',
                     const='--no-test',
                     help='Skip testing the install/remove of the .deb package, this option will have no effect if --no-pack is used.')
 parser.add_argument('--no-pack', action='store_const', const='--no-pack', help='Skip install and debmake steps, only build the source')
+parser.add_argument('--chown',
+                    action='store_const',
+                    const='--chown',
+                    help='Change owner of the build artifacts to the user running the docker container')
 args = parser.parse_args()
 
 args.bootstrap_jdk_package = basename(args.bootstrap_jdk_package)
@@ -87,7 +91,7 @@ cmd = [
     "docker", "run", "-t", "-v", "/etc/timezone:/etc/timezone:ro", "-v", build_mount, "-v", config_mount, "-v", package_mount, "-e",
     "VERSION=" + v, "-e", "MAINTAINER_NAME=\"{}\"".format(params["maintainer_name"]), "-e",
     "MAINTAINER_EMAIL={}".format(params["maintainer_email"]), "-e", "VERSION_PRE={}".format(params["version_pre"]), docker_build_name,
-    "/run.sh", "--tag", args.tag, args.clean or "", args.no_test or "", args.no_pack or ""
+    "/run.sh", "--tag", args.tag, args.clean or "", args.no_test or "", args.no_pack or "", args.chown or ""
 ]
 print(re.sub("--.*", "", " ".join(cmd).replace("-t", "-it").replace("/run.sh", "")))
 call(cmd)

@@ -1,8 +1,9 @@
-#!/bin/bash -e
+#!/bin/bash
 
 CLEAN=0
 NO_TEST=0
 NO_PACK=0
+CHOWN=0
 
 while [[ $# -gt 0 ]]; do
     case $1 in
@@ -16,6 +17,10 @@ while [[ $# -gt 0 ]]; do
         ;;
         --no-pack)
         NO_PACK=1
+        shift
+        ;;
+        --chown)
+        CHOWN=1
         shift
         ;;
         --tag)
@@ -151,3 +156,9 @@ if [[ $NO_TEST != 1 ]]; then
 fi
 
 mv $PACKAGE_NAME.deb /packages/
+
+if [[ $CHOWN = 1 ]]; then
+  echo "Changing owner of build artifacts to local user"
+  chown user:user -R /build/build
+  chown user:user /packages/$PACKAGE_NAME.deb
+fi

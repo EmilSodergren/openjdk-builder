@@ -160,6 +160,6 @@ mv $PACKAGE_NAME.deb /packages/
 if [[ $CHOWN = 1 ]]; then
   echo ""
   echo "Changing owner of build artifacts to local user"
-  chown user:user -R /build/build
+  chown user:user -R /build/
   chown user:user /packages/$PACKAGE_NAME.deb
 fi

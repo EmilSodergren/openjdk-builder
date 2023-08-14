@@ -33,6 +33,12 @@ while [[ $# -gt 0 ]]; do
         ;;
     esac
 done
+
+if [ -z $CO_TAG ]; then
+  echo "--tag <TAG> is a required parameter"
+  exit 1
+fi
+
 TIME=$(date '+%FT%H-%M-%S')
 # Include version number in TAG if it does not contain it
 if [[ "$VERSION" == "jdk8u" ]]; then

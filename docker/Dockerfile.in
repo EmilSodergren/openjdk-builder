@@ -8,5 +8,5 @@ RUN addgroup --gid ${GROUP_ID} user
 RUN useradd -l -m -u ${USER_ID} -g ${GROUP_ID} user
 ADD $JDK_PACKAGE /
 RUN dpkg -i /$JDK_PACKAGE
-ADD run.sh /
+ADD run.sh version_to_priority.py /
 

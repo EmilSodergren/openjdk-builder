@@ -52,7 +52,7 @@ else
     TAG="${VERSION:3:2}-$CO_TAG"
 fi
 PACKAGE_NAME="openjdk-${TAG}-${VERSION_PRE}"
-BUILD_VERSION="$(echo ${CO_TAG} | tr -dc [0-9.])"
+BUILD_VERSION="$(echo ${CO_TAG} | tr -dc [0-9.+])"
 echo ""
 echo "-- BUILDING --"
 echo "-- CLEAN   = ${CLEAN}"

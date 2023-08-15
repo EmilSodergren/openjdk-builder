@@ -3,7 +3,7 @@
 import argparse
 import re
 
-version_re = re.compile(r"[a-zA-Z-_+]*(\d+)(.0)?.?(\d+)?.?(\d+)?.*")
+version_re = re.compile(r"[a-zA-Z-_]*(\d+)(\.0)?\.?(\d+)?\.?(\d+)?[+]?.*")
 
 parser = argparse.ArgumentParser(description='''
     "This program takes a semver-like version (jdk-18.0.2.1-ga), where the last three numbers are optional, and transforms it to an integer.

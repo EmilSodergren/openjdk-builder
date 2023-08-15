@@ -9,7 +9,7 @@ common_keytool_args="-trustcacerts -cacerts -noprompt -deststorepass changeit"
 add_or_overwite_cert_in_keystore() {
   cert="$1"
   alias=$(basename "${cert%.*}")
-  if keytool -list ${common_keytool_args} -alias ${alias}; then
+  if (keytool -list ${common_keytool_args} -alias ${alias} > /dev/null 2>&1); then
     keytool -delete ${common_keytool_args} -alias ${alias}
   fi
   keytool -import ${common_keytool_args} -alias ${alias} -file "${cert}"

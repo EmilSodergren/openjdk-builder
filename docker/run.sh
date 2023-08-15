@@ -82,7 +82,7 @@ fi
 
 popd > /dev/null
 
-PACKAGE_PRIORITY=$(version_to_priority.py ${CO_TAG})
+PACKAGE_PRIORITY=$(./version_to_priority.py ${CO_TAG})
 # Rename the built folder to $PACKAGE_NAME
 mkdir -p /$PACKAGE_NAME/usr/lib/jvm/$PACKAGE_NAME
 mv /build/build/*/images/jdk/* /$PACKAGE_NAME/usr/lib/jvm/$PACKAGE_NAME

@@ -52,12 +52,14 @@ else
     TAG="${VERSION:3:2}-$CO_TAG"
 fi
 PACKAGE_NAME="openjdk-${TAG}-${VERSION_PRE}"
+BUILD_VERSION="$(echo ${CO_TAG} | tr -dc [0-9.])"
 echo ""
 echo "-- BUILDING --"
 echo "-- CLEAN   = ${CLEAN}"
 echo "-- NO_TEST = ${NO_TEST}"
 echo "-- NO_PACK = ${NO_PACK}"
-echo "-- VERSION = ${VERSION}"
+echo "-- SOURCE_VERSION = ${VERSION}"
+echo "-- BUILD_VERSION = ${BUILD_VERSION}"
 echo "-- PACKAGE = ${PACKAGE_NAME}"
 echo "-- TIME    = ${TIME}"
 echo "-- TAG     = ${TAG}"
@@ -80,16 +82,17 @@ fi
 
 popd > /dev/null
 
+PACKAGE_PRIORITY=$(version_to_priority.py ${CO_TAG})
 # Rename the built folder to $PACKAGE_NAME
 mkdir -p /$PACKAGE_NAME/usr/lib/jvm/$PACKAGE_NAME
 mv /build/build/*/images/jdk/* /$PACKAGE_NAME/usr/lib/jvm/$PACKAGE_NAME
 cp -r /DEBIAN $PACKAGE_NAME
 sed -i "s#{source}#openjdk-${VERSION:3:2}#g" `find $PACKAGE_NAME/DEBIAN -type f`
 sed -i "s#{package_name}#$PACKAGE_NAME#g" `find $PACKAGE_NAME/DEBIAN -type f`
-sed -i "s#{priority}#${VERSION:3:2}#g" `find $PACKAGE_NAME/DEBIAN -type f`
+sed -i "s#{priority}#${PACKAGE_PRIORITY}#g" `find $PACKAGE_NAME/DEBIAN -type f`
 sed -i "s#{maintainer_name}#${MAINTAINER_NAME}#g" `find $PACKAGE_NAME/DEBIAN -type f`
 sed -i "s#{maintainer_email}#${MAINTAINER_EMAIL}#g" `find $PACKAGE_NAME/DEBIAN -type f`
-sed -i "s#{version}#${VERSION:3:2}.0#g" `find $PACKAGE_NAME/DEBIAN -type f`
+sed -i "s#{version}#${BUILD_VERSION}#g" `find $PACKAGE_NAME/DEBIAN -type f`
 SIZE=`du -shk $PACKAGE_NAME/usr/lib/jvm/$PACKAGE_NAME | awk '{print $1}'`
 sed -i "s#{size}#${SIZE}#g" `find $PACKAGE_NAME/DEBIAN -type f`
 REMOTE_URL=`git -C /build remote get-url --all origin`

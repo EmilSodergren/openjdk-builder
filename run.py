@@ -6,9 +6,9 @@ import sys
 from string import Template
 from sys import exit
 from subprocess import call, Popen
+from shutil import copy
 from argparse import ArgumentParser
 from os.path import basename
-from shutil import copy
 import json
 
 ver_nr = re.compile(r"^jdk(\d*)u?$")

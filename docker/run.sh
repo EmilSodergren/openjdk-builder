@@ -53,6 +53,9 @@ else
 fi
 PACKAGE_NAME="openjdk-${TAG}-${VERSION_PRE}"
 BUILD_VERSION="$(echo ${CO_TAG} | tr -dc [0-9.+])"
+if [ -z "$BUILD_VERSION" ]; then
+  BUILD_VERSION="$TAG"
+fi
 echo ""
 echo "-- BUILDING --"
 echo "-- CLEAN   = ${CLEAN}"

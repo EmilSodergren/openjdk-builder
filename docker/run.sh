@@ -46,7 +46,7 @@ if [[ "$VERSION" == "jdk8u" ]]; then
 else
     CONFIG_PARAMS="--with-version-opt=$TIME --with-version-pre=${VERSION_PRE} --disable-warnings-as-errors"
 fi
-if [[ $CO_TAG == *"${VERSION:3:2}"* ]]; then
+if [[ $CO_TAG == *jdk-"${VERSION:3:2}"* ]]; then
     TAG=$CO_TAG
 else
     TAG="${VERSION:3:2}-$CO_TAG"

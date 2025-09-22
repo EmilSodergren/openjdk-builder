@@ -30,8 +30,12 @@ def getConfDirFromVersion(v):
         return 'jdk12-13'
     elif version_number < 15:
         return 'jdk14'
+    elif version_number < 22:
+        return 'jdk15-21'
+    elif version_number < 24:
+        return 'jdk22-24'
     else:
-        return 'jdk15-'
+        return 'jdk24-'
 
 
 required_keys = ['base_image', 'maintainer_name', 'maintainer_email', 'version_pre']

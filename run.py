@@ -11,7 +11,7 @@ from argparse import ArgumentParser
 from os.path import basename
 import json
 
-ver_nr = re.compile(r"^jdk(\d+)u?$")
+ver_nr = re.compile(r"^jdk-?(\d+)[+-].+$")
 ver_range = re.compile(r"^jdk(?P<min>\d+)u?(-)?(?P<max>\d+)?$")
 
 
@@ -32,21 +32,15 @@ def parse_ranges_from_folders(folder):
     return range_dict
 
 
-def get_conf_dir_from_version(v):
-    version_number = ver_nr.match(v)
+def get_conf_dir_from_version(build_version):
     ranges = parse_ranges_from_folders("debconf")
-    if version_number:
-        version_number = int(version_number.group(1))
-    else:
-        print("Could not parse an integer from {}".format(v))
-        sys.exit(2)
 
     for (min, max), folder in ranges.items():
-        if version_number >= min and version_number <= max:
+        if build_version >= min and build_version <= max:
             return folder
 
     # No debconf found suitable for the requested version of JDK.
-    print(f"could not find a suitable debconf folder for version: {version_number}")
+    print(f"could not find a suitable debconf folder for version: {build_version}")
     raise SystemExit(1)
 
 
@@ -72,9 +66,12 @@ args = parser.parse_args()
 
 args.bootstrap_jdk_package = basename(args.bootstrap_jdk_package)
 
-v = args.source_version
+build_version = int(ver_nr.match(args.tag).group(1))
+if not build_version:
+    print("Could not parse an integer from {}".format(build_version))
+    sys.exit(2)
 
-if not exists(v):
+if not exists(args.source_version):
     print('No such version exists')
     exit(1)
 
@@ -91,13 +88,13 @@ with open("docker/Dockerfile.in") as f:
     with open("docker/Dockerfile", 'w') as outf:
         outf.write(docker_file.safe_substitute(templ_map))
 
-docker_build_name = "jdk_builder_" + v
+docker_build_name = f"jdk_builder_{build_version}"
 copy(join(os.getcwd(), "packages", args.bootstrap_jdk_package), join(os.getcwd(), "docker"))
 p = Popen(["docker", "build", "--build-arg", "JDK_PACKAGE=" + args.bootstrap_jdk_package, "-t", docker_build_name, "."], cwd="./docker")
 p.wait()
 os.remove(join(os.getcwd(), "docker", args.bootstrap_jdk_package))
-build_mount = join(os.getcwd(), v) + ":/build"
-config_mount = join(os.getcwd(), "debconf", get_conf_dir_from_version(v)) + ":/DEBIAN"
+build_mount = join(os.getcwd(), args.source_version) + ":/build"
+config_mount = join(os.getcwd(), "debconf", get_conf_dir_from_version(build_version)) + ":/DEBIAN"
 packagedir = join(os.getcwd(), "packages")
 if not os.path.exists(packagedir):
     os.makedirs(packagedir)
@@ -105,7 +102,7 @@ package_mount = join(os.getcwd(), "packages") + ":/packages"
 
 cmd = [
     "docker", "run", "--rm", "-t", "--entrypoint", "/run.sh", "-v", "/etc/timezone:/etc/timezone:ro", "-v", build_mount, "-v", config_mount,
-    "-v", package_mount, "-e", "VERSION=" + v, "-e", "MAINTAINER_NAME=\"{}\"".format(params["maintainer_name"]), "-e",
+    "-v", package_mount, "-e", "VERSION=" + args.source_version, "-e", "MAINTAINER_NAME=\"{}\"".format(params["maintainer_name"]), "-e",
     "MAINTAINER_EMAIL={}".format(params["maintainer_email"]), "-e", "VERSION_PRE={}".format(params["version_pre"]), docker_build_name,
     "--tag", args.tag, args.clean or "", args.no_test or "", args.no_pack or "", args.chown or ""
 ]

@@ -11,31 +11,43 @@ from argparse import ArgumentParser
 from os.path import basename
 import json
 
-ver_nr = re.compile(r"^jdk(\d*)u?$")
+ver_nr = re.compile(r"^jdk(\d+)u?$")
+ver_range = re.compile(r"^jdk(?P<min>\d+)u?(-)?(?P<max>\d+)?$")
 
 
-def getConfDirFromVersion(v):
+# Parse the version range for each debconf folder, note that the min and max versions are inclusive; min <= ver <= max
+def parse_ranges_from_folders(folder):
+    range_dict = {}
+    for folder_name in os.listdir(folder):
+        version_range = ver_range.match(folder_name)
+        # Foldername has min and max version
+        if version_range.group("min") and version_range.group("max"):
+            range_dict[(int(version_range.group("min")), int(version_range.group("max")))] = folder_name
+        # Foldername has only min version, means that min == max
+        elif not version_range.group(2):
+            range_dict[(int(version_range.group("min")), int(version_range.group("min")))] = folder_name
+        # All versions larger than min version
+        else:
+            range_dict[(int(version_range.group("min")), 100000)] = folder_name
+    return range_dict
+
+
+def get_conf_dir_from_version(v):
     version_number = ver_nr.match(v)
+    ranges = parse_ranges_from_folders("debconf")
     if version_number:
         version_number = int(version_number.group(1))
     else:
         print("Could not parse an integer from {}".format(v))
         sys.exit(2)
 
-    if version_number < 11:
-        return 'jdk8u'
-    elif version_number < 12:
-        return 'jdk11'
-    elif version_number < 14:
-        return 'jdk12-13'
-    elif version_number < 15:
-        return 'jdk14'
-    elif version_number < 22:
-        return 'jdk15-21'
-    elif version_number < 24:
-        return 'jdk22-24'
-    else:
-        return 'jdk24-'
+    for (min, max), folder in ranges.items():
+        if version_number >= min and version_number <= max:
+            return folder
+
+    # No debconf found suitable for the requested version of JDK.
+    print(f"could not find a suitable debconf folder for version: {version_number}")
+    raise SystemExit(1)
 
 
 required_keys = ['base_image', 'maintainer_name', 'maintainer_email', 'version_pre']
@@ -85,7 +97,7 @@ p = Popen(["docker", "build", "--build-arg", "JDK_PACKAGE=" + args.bootstrap_jdk
 p.wait()
 os.remove(join(os.getcwd(), "docker", args.bootstrap_jdk_package))
 build_mount = join(os.getcwd(), v) + ":/build"
-config_mount = join(os.getcwd(), "debconf", getConfDirFromVersion(v)) + ":/DEBIAN"
+config_mount = join(os.getcwd(), "debconf", get_conf_dir_from_version(v)) + ":/DEBIAN"
 packagedir = join(os.getcwd(), "packages")
 if not os.path.exists(packagedir):
     os.makedirs(packagedir)

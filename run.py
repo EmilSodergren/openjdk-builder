@@ -11,7 +11,7 @@ from argparse import ArgumentParser
 from os.path import basename
 import json
 
-ver_nr = re.compile(r"^jdk-?(\d+)[+-].+$")
+ver_nr = re.compile(r"^jdk-?(\d+)[0-9.]*[+-].+$")
 ver_range = re.compile(r"^jdk(?P<min>\d+)u?(-)?(?P<max>\d+)?$")
 
 
